@@ -3,7 +3,7 @@ COBI.init('token');
 // Make clock appear in upper right corner
 COBI.app.clockVisible.write(false);
 // Also listen to standard controller events
-COBI.devkit.overrideThumbControllerMapping.write(true);
+COBI.devkit.overrideThumbControllerMapping.write(false);
 
 // Disable Reordering in Experience
 var inEditMode = (COBI.parameters.context() == COBI.context.offRideSettings || COBI.parameters.context() == COBI.context.onRideSettings);
