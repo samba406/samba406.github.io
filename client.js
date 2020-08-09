@@ -11,10 +11,10 @@ var inEditMode = (COBI.parameters.context() == COBI.context.offRideSettings || C
 // Allow user to zoom in and out
 COBI.hub.externalInterfaceAction.subscribe(function(action) {
   // Listen to inputs and update zoom index variable
-  if ((action == 'UP' || action == 'RIGHT')) {
+  if ((action == 'RIGHT')) {
     zoomIn();
   }
-  if ((action == 'DOWN' || action == 'LEFT')) {
+  if ((action == 'LEFT')) {
     zoomOut();
   }
 });
