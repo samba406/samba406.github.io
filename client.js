@@ -1,7 +1,7 @@
 COBI.init('token');
 
 // Make clock appear in upper right corner
-COBI.app.clockVisible.write(false);
+COBI.app.clockVisible.write(true);
 // Also listen to standard controller events
 COBI.devkit.overrideThumbControllerMapping.write(false);
 
@@ -74,8 +74,8 @@ var definitions = [
   {
     id: 'distance',
     name: 'Distance',
-    subscribe: COBI.tourService.ridingDistance.subscribe,
-    unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
+    subscribe: COBI.battery.state.BatteryCondition.batteryLevel.subscribe,
+    unsubscribe: COBI.battery.state.BatteryCondition.batteryLevel.unsubscribe,
     formatter: formatDistanceDot1,
     unit: 'Batt %',
     defaultValue: '-'
