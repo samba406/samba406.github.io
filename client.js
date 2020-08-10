@@ -62,6 +62,15 @@ var definitions = [
     unit: 'rpm',
     defaultValue: '-'
   },
+ // {
+ //   id: 'distance',
+ //   name: 'Distance',
+ //   subscribe: COBI.tourService.ridingDistance.subscribe,
+ //   unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
+ //   formatter: formatDistanceDot1,
+ //   unit: 'km total',
+ //   defaultValue: '-'
+ // },
   {
     id: 'distance',
     name: 'Distance',
