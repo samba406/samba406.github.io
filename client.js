@@ -74,10 +74,10 @@ var definitions = [
   {
     id: 'distance',
     name: 'Distance',
-    subscribe: COBI.motor.range.subscribe,
-    unsubscribe: COBI.motor.range.unsubscribe,
+    subscribe: COBI.tourService.ridingDistance.subscribe,
+    unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
     formatter: formatDistanceDot1,
-    unit: 'Range',
+    unit: 'km',
     defaultValue: '-'
   },
   {
