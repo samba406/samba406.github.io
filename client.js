@@ -74,8 +74,8 @@ var definitions = [
   {
     id: 'distance',
     name: 'Distance',
-    subscribe: COBI.battery.state.subscribe,
-    unsubscribe: COBI.battery.state.unsubscribe,
+    subscribe: COBI.batteryController.state.subscribe,
+    unsubscribe: COBI.batteryController.state.unsubscribe,
     formatter: formatDistanceDot1,
     unit: 'Batt %',
     defaultValue: '-'
