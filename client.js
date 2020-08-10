@@ -77,7 +77,7 @@ var definitions = [
     subscribe: COBI.tourService.ridingDistance.subscribe,
     unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
     formatter: formatDistanceDot1,
-    unit: 'km total',
+    unit: 'Batt %',
     defaultValue: '-'
   },
   {
