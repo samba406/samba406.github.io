@@ -74,8 +74,8 @@ var definitions = [
   {
     id: 'distance',
     name: 'Distance',
-    subscribe: COBI.battery.state.subscribe,
-    unsubscribe: COBI.battery.state.unsubscribe,
+    subscribe: COBI.battery.state.subscribe(function(value)),
+    unsubscribe: COBI.battery.state.unsubscribe(function(value)),
     formatter: formatInt,
     unit: 'km',
     defaultValue: '-'
