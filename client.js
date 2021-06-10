@@ -74,9 +74,9 @@ var definitions = [
   {
     id: 'distance',
     name: 'Distance',
-    subscribe: COBI.tourService.ridingDistance.subscribe,
-    unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
-    formatter: formatDistanceDot1,
+    subscribe: COBI.battery.state.subscribe,
+    unsubscribe: COBI.battery.state.unsubscribe,
+    formatter: formatInt,
     unit: 'km',
     defaultValue: '-'
   },
