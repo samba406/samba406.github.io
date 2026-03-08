@@ -74,8 +74,8 @@ var definitions = [
   {
     id: 'battery',
     name: 'Battery',
-    subscribe: COBI.motor.batteryLevel.subscribe,
-    unsubscribe: COBI.motor.batteryLevel.unsubscribe,
+    subscribe: COBI.battery.stateOfCharge.subscribe,
+    unsubscribe: COBI.battery.stateOfCharge.unsubscribe,
     //subscribe: COBI.rideService.stateOfCharge.subscribe,
     //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
     formatter: formatBatteryDot1,
