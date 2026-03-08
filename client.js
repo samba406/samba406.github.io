@@ -74,8 +74,10 @@ var definitions = [
   {
     id: 'battery',
     name: 'Akku',
-    subscribe: COBI.rideService.stateOfCharge.subscribe,
-    unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
+    //subscribe: COBI.rideService.stateOfCharge.subscribe,
+    //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
+    subscribe: COBI.tourService.ridingDistance.subscribe,
+    unsubscribe: COBI.tourService.ridingDistance.unsubscribe
     formatter: function(value) { 
         // Falls der Wert zwischen 0 und 1 geliefert wird (z.B. 0.85)
         if (value <= 1) return Math.round(value * 100); 
