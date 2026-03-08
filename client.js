@@ -74,8 +74,14 @@ var definitions = [
   {
     id: 'battery',
     name: 'Battery',
-    subscribe: COBI.battery.stateOfCharge.subscribe,
-    unsubscribe: COBI.battery.stateOfCharge.unsubscribe,
+    subscribe: function(callback) {
+    // Wir abonnieren den komplexen Status
+    COBI.battery.state.subscribe(function(batteryCondition) {
+      // Wir extrahieren nur den Level (z.B. 0.85) und geben ihn an das Grid weiter
+      callback(batteryCondition.batteryLevel);
+    });
+    },
+    unsubscribe: COBI.battery.state.unsubscribe,
     //subscribe: COBI.rideService.stateOfCharge.subscribe,
     //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
     formatter: formatBatteryDot1,
