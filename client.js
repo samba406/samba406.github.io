@@ -73,7 +73,7 @@ var definitions = [
   //},
   {
     id: 'distance',
-    name: 'Batterie',
+    name: 'Distance',
     subscribe: COBI.motor.batteryLevel.subscribe,
     unsubscribe: COBI.motor.batteryLevel.unsubscribe,
     formatter: function(value) { return Math.round(value); }, 
