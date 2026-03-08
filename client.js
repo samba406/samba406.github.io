@@ -79,7 +79,7 @@ var definitions = [
     //formatter: function(value) { return Math.round(value); }, 
     //unit: '%',
     //defaultValue: '-'
-  },
+  //},
   {
     id: 'calories',
     name: 'Calories',
