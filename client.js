@@ -74,11 +74,11 @@ var definitions = [
   {
     id: 'battery',
     name: 'Battery',
-    subscribe: COBI.rideService.stateOfCharge.subscribe,
-    unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
+    //subscribe: COBI.rideService.stateOfCharge.subscribe,
+    //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
     formatter: formatBatteryDot1,
     unit: '%',
-    defaultValue: '?'
+    defaultValue: '-'
   },
   {
     id: 'calories',
