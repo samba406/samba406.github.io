@@ -78,11 +78,12 @@ var definitions = [
     //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
     subscribe: COBI.tourService.ridingDistance.subscribe,
     unsubscribe: COBI.tourService.ridingDistance.unsubscribe
-    formatter: function(value) { 
+    formatter: formatDistanceDot1,
+    //formatter: function(value) { 
         // Falls der Wert zwischen 0 und 1 geliefert wird (z.B. 0.85)
-        if (value <= 1) return Math.round(value * 100); 
+        //if (value <= 1) return Math.round(value * 100); 
         // Falls er direkt als 0-100 geliefert wird
-        return Math.round(value); 
+        //return Math.round(value); 
     },
     unit: '%',
     defaultValue: '?'
