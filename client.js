@@ -76,7 +76,7 @@ var definitions = [
     name: 'Batterie',
     subscribe: COBI.motor.batteryLevel.subscribe,
     unsubscribe: COBI.motor.batteryLevel.unsubscribe,
-    formatter: formatInt,//function(value) { return Math.round(value); }, 
+    formatter: function(value) { return Math.round(value); }, 
     unit: '%',
     defaultValue: '-'
   },
