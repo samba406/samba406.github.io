@@ -62,32 +62,29 @@ var definitions = [
     unit: 'rpm',
     defaultValue: '-'
   },
-  //{
-    //id: 'distance',
-    //name: 'Distance',
-    //subscribe: COBI.tourService.ridingDistance.subscribe,
-    //unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
-    //formatter: formatDistanceDot1,
-    //unit: 'km total',
-    //defaultValue: '-'
-  //},
   {
     id: 'distance',
     name: 'Distance',
+    subscribe: COBI.tourService.ridingDistance.subscribe,
+    unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
+    formatter: formatDistanceDot1,
+    unit: 'km total',
+    defaultValue: '-'
+  },
+  //{
+    //id: 'Battery',
+    //name: 'Akku',
     //subscribe: COBI.rideService.stateOfCharge.subscribe,
     //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
-    subscribe: COBI.tourService.ridingDistance.subscribe,
-    unsubscribe: COBI.tourService.ridingDistance.unsubscribe
-    formatter: formatDistanceDot1,
     //formatter: function(value) { 
         // Falls der Wert zwischen 0 und 1 geliefert wird (z.B. 0.85)
         //if (value <= 1) return Math.round(value * 100); 
         // Falls er direkt als 0-100 geliefert wird
         //return Math.round(value); 
     //},
-    unit: '%',
-    defaultValue: '?'
-  },
+    //unit: '%',
+    //defaultValue: '?'
+  //},
   {
     id: 'calories',
     name: 'Calories',
