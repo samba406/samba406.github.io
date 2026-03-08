@@ -72,7 +72,7 @@ var definitions = [
     //defaultValue: '-'
   //},
   {
-    id: 'battery',
+    id: 'distance',
     name: 'Batterie',
     subscribe: COBI.motor.batteryLevel.subscribe,
     unsubscribe: COBI.motor.batteryLevel.unsubscribe,
