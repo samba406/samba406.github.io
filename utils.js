@@ -27,7 +27,7 @@ function formatDistanceDot1(value) {
 }
 
 function formatBatteryDot1(value) {
-  var battery = formatDot1(value / 1).toString();
+  var battery = formatDot1(value * 1).toString();
   return enforceDot1(battery);
 }
 function formatStopwatch(value) {
