@@ -11,7 +11,8 @@ var defaultOrderedList = [
   'ascent',
   'calories',
   'distance',
-  'duration'
+  'duration',
+  'battery'
 ];
 
 var defaultZoomIndex = 3;
