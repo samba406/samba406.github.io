@@ -73,7 +73,7 @@ var definitions = [
   //},
   {
     id: 'distance',
-    name: 'Akku',
+    name: 'Distance',
     //subscribe: COBI.rideService.stateOfCharge.subscribe,
     //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
     subscribe: COBI.tourService.ridingDistance.subscribe,
