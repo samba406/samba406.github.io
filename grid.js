@@ -1,5 +1,5 @@
 // Define constants
-var localStorageKeyGridOrderedList = 'grid-ordered-list';
+var localStorageKeyGridOrderedList = 'grid-ordered-list-v35';
 var localStorageKeyGridZoom = 'grid-zoom';
 
 var defaultOrderedList = [
