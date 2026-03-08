@@ -76,7 +76,7 @@ var definitions = [
     name: 'Batterie',
     subscribe: COBI.rideService.stateOfCharge.subscribe,
     unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
-    formatter: function(value) { return Math.round(value); }, 
+    formatter: formatInt,//function(value) { return Math.round(value); }, 
     unit: '%',
     defaultValue: '-'
   },
