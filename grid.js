@@ -10,7 +10,7 @@ var defaultOrderedList = [
   'heart_rate',
   'ascent',
   'calories',
-  'battery',//'distance',
+  'distance',//'battery',//'distance',
   'duration'
 ];
 
