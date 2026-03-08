@@ -9,7 +9,7 @@ var defaultOrderedList = [
   'user_power',
   'heart_rate',
   'ascent',
-  'calories',//'battery' //for SOC //
+  'calories',
   'distance',
   'duration'
 ];
