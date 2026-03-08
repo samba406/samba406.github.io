@@ -63,7 +63,7 @@ var definitions = [
     defaultValue: '-'
   },
   {
-    id: 'distanceneu',
+    id: 'distance',
     name: 'Distance',
     subscribe: COBI.tourService.ridingDistance.subscribe,
     unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
