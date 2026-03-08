@@ -72,8 +72,8 @@ var definitions = [
     defaultValue: '-'
   },
   //{
-    //id: 'distance',
-    //name: 'Distance',
+    //id: 'battery',
+    //name: 'Battery',
     //subscribe: COBI.motor.batteryLevel.subscribe,
     //unsubscribe: COBI.motor.batteryLevel.unsubscribe,
     //formatter: function(value) { return Math.round(value); }, 
