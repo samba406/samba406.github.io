@@ -25,6 +25,7 @@ function formatDistanceDot1(value) {
   var distance = formatDot1(value / 1000).toString();
   return enforceDot1(distance);
 }
+
 function formatBatteryDot1(value) {
   var battery = formatDot1(value / 1).toString();
   return enforceDot1(battery);
