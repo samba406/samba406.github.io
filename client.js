@@ -84,7 +84,7 @@ var definitions = [
         //if (value <= 1) return Math.round(value * 100); 
         // Falls er direkt als 0-100 geliefert wird
         //return Math.round(value); 
-    },
+    //},
     unit: '%',
     defaultValue: '?'
   },
