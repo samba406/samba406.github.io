@@ -84,7 +84,7 @@ var definitions = [
     unsubscribe: COBI.battery.state.unsubscribe,
     //subscribe: COBI.rideService.stateOfCharge.subscribe,
     //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
-    formatter: formatBatteryDot1,
+    formatter: formatInt,//formatBatteryDot1,
     unit: '%',
     defaultValue: '-'
   },
