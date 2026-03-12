@@ -4,15 +4,15 @@ var localStorageKeyGridZoom = 'grid-zoom';
 
 var defaultOrderedList = [
   'speed',
-  'average_speed',
-  'cadence',
-  'user_power',
+  'battery',
   'heart_rate',
+  'user_power',
+  'cadence',  
   'ascent',
   'calories',
   'distance',
-  'duration',
-  'battery'
+  //'duration',
+  'average_speed'
 ];
 
 var defaultZoomIndex = 3;
@@ -21,7 +21,7 @@ var editZoomIndexOverride = 2;
 var minZoomIndex = 1;
 var maxZoomIndex = 4;
 
-var remToZoomMapping = [0, 2.7, 2.7, 1.9, 1.4];
+var remToZoomMapping = [0, 2.7, 2.7, 1.5, 1.4];
 
 var touchInteractionEnabled = false;
 var isPortrait = window.matchMedia('(orientation: portrait)').matches;
