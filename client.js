@@ -115,13 +115,13 @@ var definitions = [
     unit: 'bpm',
     defaultValue: '-'
   },
-  {
-    id: 'duration',
-    name: 'Duration',
-    subscribe: COBI.tourService.ridingDuration.subscribe,
-    unsubscribe: COBI.tourService.ridingDuration.unsubscribe,
-    formatter: formatMins,
-    unit: 'min',
-    defaultValue: '-'
-  }
+  //{
+    //id: 'duration',
+    //name: 'Duration',
+    //subscribe: COBI.tourService.ridingDuration.subscribe,
+    //unsubscribe: COBI.tourService.ridingDuration.unsubscribe,
+    //formatter: formatMins,
+    //unit: 'min',
+    //defaultValue: '-'
+  //}
 ];
