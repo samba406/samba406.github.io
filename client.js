@@ -96,8 +96,8 @@ $(window).on('load', function() {
             if (isNaN(numValue)) numValue = 0;
             
             // Special handling for battery returning ratio e.g., 0.85
-            if (def.id === 'battery' && numValue <= 1.0) {
-                numValue = numValue * 100;
+            //if (def.id === 'battery' && numValue <= 1.0) {
+              //  numValue = numValue * 100;
             }
 
             // Map value to percentage bounds
