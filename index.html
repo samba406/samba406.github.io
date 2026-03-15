@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" name="viewport" content="maximum-scale=1,initial-scale=1,user-scalable=no" />
+  <title>COBI Bar View</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.28/css/uikit.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <ul id="main-grid" class="uk-grid-small uk-child-width-1-2 uk-text-center" uk-grid>
+    <!-- Cadence -->
+    <li>
+      <div class="uk-card uk-card-default uk-card-body">
+        <div class="label">Cadence</div>
+        <div class="data-row">
+          <span id="cadence_value" class="value">—</span>
+          <span id="cadence_unit" class="unit">rpm</span>
+        </div>
+        <div class="bar-container">
+          <div id="cadence_bar" class="bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="bar-labels">
+          <span class="bar-min">0</span>
+          <span class="bar-max">110</span>
+        </div>
+      </div>
+    </li>
+    <!-- Heartrate -->
+    <li>
+      <div class="uk-card uk-card-default uk-card-body">
+        <div class="label">Heartrate</div>
+        <div class="data-row">
+          <span id="heart_rate_value" class="value">—</span>
+          <span id="heart_rate_unit" class="unit">bpm</span>
+        </div>
+        <div class="bar-container">
+          <div id="heart_rate_bar" class="bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="bar-labels">
+          <span class="bar-min">60</span>
+          <span class="bar-max">160</span>
+        </div>
+      </div>
+    </li>
+    <!-- User Power -->
+    <li>
+      <div class="uk-card uk-card-default uk-card-body">
+        <div class="label">User Power</div>
+        <div class="data-row">
+          <span id="user_power_value" class="value">—</span>
+          <span id="user_power_unit" class="unit">watts</span>
+        </div>
+        <div class="bar-container">
+          <div id="user_power_bar" class="bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="bar-labels">
+          <span class="bar-min">0</span>
+          <span class="bar-max">160</span>
+        </div>
+      </div>
+    </li>
+    <!-- Battery -->
+    <li>
+      <div class="uk-card uk-card-default uk-card-body">
+        <div class="label">Battery</div>
+        <div class="data-row">
+          <span id="battery_value" class="value">—</span>
+          <span id="battery_unit" class="unit">%</span>
+        </div>
+        <div class="bar-container">
+          <div id="battery_bar" class="bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="bar-labels">
+          <span class="bar-min">5</span>
+          <span class="bar-max">100</span>
+        </div>
+      </div>
+    </li>
+    <!-- Ascent -->
+    <li>
+      <div class="uk-card uk-card-default uk-card-body">
+        <div class="label">Ascent</div>
+        <div class="data-row">
+          <span id="ascent_value" class="value">—</span>
+          <span id="ascent_unit" class="unit">m</span>
+        </div>
+        <div class="bar-container">
+          <div id="ascent_bar" class="bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="bar-labels">
+          <span class="bar-min">0</span>
+          <span class="bar-max">1500</span>
+        </div>
+      </div>
+    </li>
+    <!-- Calories -->
+    <li>
+      <div class="uk-card uk-card-default uk-card-body">
+        <div class="label">Calories</div>
+        <div class="data-row">
+          <span id="calories_value" class="value">—</span>
+          <span id="calories_unit" class="unit">kcal</span>
+        </div>
+        <div class="bar-container">
+          <div id="calories_bar" class="bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="bar-labels">
+          <span class="bar-min">0</span>
+          <span class="bar-max">1800</span>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.28/js/uikit.min.js"></script>
+  <script src="https://cdn.cobi.bike/cobi.js/0.44.0/cobi.js"></script>
+  <script src="utils.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
