@@ -7,5 +7,5 @@ function formatInt(value) {
 
 function formatBatteryInt(value) {
   if (value == null || isNaN(value)) return '-';
-  return parseInt(value * 100); 
+  return parseInt(value); 
 }
