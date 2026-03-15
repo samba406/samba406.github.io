@@ -21,7 +21,7 @@ var editZoomIndexOverride = 2;
 var minZoomIndex = 1;
 var maxZoomIndex = 4;
 
-var remToZoomMapping = [0, 2.7, 2.7, 1.5, 1.4];
+var remToZoomMapping = [0, 2.7, 2.7, 1.8, 1.4];
 
 var touchInteractionEnabled = false;
 var isPortrait = window.matchMedia('(orientation: portrait)').matches;
