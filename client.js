@@ -42,7 +42,7 @@ var definitions = [
     unsubscribe: COBI.tourService.averageSpeed.unsubscribe,
     formatter: formatSpeedDot1,
     unit: 'Ø km/h',
-    defaultValue: '-'
+    defaultValue: '1000'
   },
   {
     id: 'user_power',
@@ -51,7 +51,7 @@ var definitions = [
     unsubscribe: COBI.rideService.userPower.unsubscribe,
     formatter: formatInt,
     unit: 'watts',
-    defaultValue: '-'
+    defaultValue: '1000'
   },
   {
     id: 'cadence',
@@ -60,7 +60,7 @@ var definitions = [
     unsubscribe: COBI.rideService.cadence.unsubscribe,
     formatter: formatInt,
     unit: 'rpm',
-    defaultValue: '-'
+    defaultValue: '1000'
   },
   {
     id: 'distance',
@@ -86,7 +86,7 @@ var definitions = [
     //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
     formatter: formatInt,//formatBatteryDot1,
     unit: '%',
-    defaultValue: '-'
+    defaultValue: '1000'
   },
   {
     id: 'calories',
@@ -95,7 +95,7 @@ var definitions = [
     unsubscribe: COBI.tourService.calories.unsubscribe,
     formatter: formatInt,
     unit: 'kcal',
-    defaultValue: '-'
+    defaultValue: '1000'
   },
   {
     id: 'ascent',
@@ -104,7 +104,7 @@ var definitions = [
     unsubscribe: COBI.tourService.ascent.unsubscribe,
     formatter: formatInt,
     unit: 'm',
-    defaultValue: '-'
+    defaultValue: '1000'
   },
   {
     id: 'heart_rate',
@@ -113,7 +113,7 @@ var definitions = [
     unsubscribe: COBI.rideService.heartRate.unsubscribe,
     formatter: formatInt,
     unit: 'bpm',
-    defaultValue: '-'
+    defaultValue: '1000'
   },
   //{
     //id: 'duration',
