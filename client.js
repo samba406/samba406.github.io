@@ -60,7 +60,7 @@ var definitions = [
       });
     },
     unsubscribe: COBI.battery.state.unsubscribe,
-    formatter: formatBatteryInt,
+    formatter: formatInt,
     min: 5,
     max: 100
   },
