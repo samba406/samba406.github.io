@@ -5,123 +5,108 @@ COBI.app.clockVisible.write(false);
 // Also listen to standard controller events
 COBI.devkit.overrideThumbControllerMapping.write(false);
 
-// Disable Reordering in Experience
-var inEditMode = (COBI.parameters.context() == COBI.context.offRideSettings || COBI.parameters.context() == COBI.context.onRideSettings);
-
 // Allow user to zoom in and out
 COBI.hub.externalInterfaceAction.subscribe(function(action) {
-  // Listen to inputs and update zoom index variable
+  // Listen to inputs
   if ((action == 'RIGHT')) {
-    zoomIn();
+     // Reserved for future zoom function / view selection
   }
   if ((action == 'LEFT')) {
-    zoomOut();
+     // Reserved for future zoom function / view selection
   }
 });
 
-// Display detailled item names if touch interaction is allowed
+// Display detailed item names if touch interaction is allowed
 COBI.app.touchInteractionEnabled.subscribe(function(touchInteractionEnabled) {
-  updateInterfaceVisibility(touchInteractionEnabled);
+  var elements = document.getElementsByClassName('label');
+  for (var i in elements) {
+    if (elements[i].style) {
+      elements[i].style.visibility = touchInteractionEnabled ? 'visible' : 'hidden';
+    }
+  }
 });
 
-// Define id, name, events, formatting functions, units and default value for each item
+// Configure metrics and ranges
 var definitions = [
   {
-    id: 'speed',
-    name: 'Speed',
-    subscribe: COBI.rideService.speed.subscribe,
-    unsubscribe: COBI.rideService.speed.unsubscribe,
-    formatter: formatSpeedDot1,
-    unit: 'km/h',
-    defaultValue: '-'
-  },
-  {
-    id: 'average_speed',
-    name: 'Avg Speed',
-    subscribe: COBI.tourService.averageSpeed.subscribe,
-    unsubscribe: COBI.tourService.averageSpeed.unsubscribe,
-    formatter: formatSpeedDot1,
-    unit: 'Ø km/h',
-    defaultValue: '-'
-  },
-  {
-    id: 'user_power',
-    name: 'User Power',
-    subscribe: COBI.rideService.userPower.subscribe,
-    unsubscribe: COBI.rideService.userPower.unsubscribe,
-    formatter: formatInt,
-    unit: 'watts',
-    defaultValue: '-'
-  },
-  {
     id: 'cadence',
-    name: 'Cadence',
     subscribe: COBI.rideService.cadence.subscribe,
     unsubscribe: COBI.rideService.cadence.unsubscribe,
     formatter: formatInt,
-    unit: 'rpm',
-    defaultValue: '-'
-  },
-  {
-    id: 'distance',
-    name: 'Distance',
-    subscribe: COBI.tourService.ridingDistance.subscribe,
-    unsubscribe: COBI.tourService.ridingDistance.unsubscribe,
-    formatter: formatDistanceDot1,
-    unit: 'km total',
-    defaultValue: '-'
-  },
-  {
-    id: 'battery',
-    name: 'Battery',
-    subscribe: function(callback) {
-    // Wir abonnieren den komplexen Status
-    COBI.battery.state.subscribe(function(batteryCondition) {
-      // Wir extrahieren nur den Level (z.B. 0.85) und geben ihn an das Grid weiter
-      callback(batteryCondition.batteryLevel);
-    });
-    },
-    unsubscribe: COBI.battery.state.unsubscribe,
-    //subscribe: COBI.rideService.stateOfCharge.subscribe,
-    //unsubscribe: COBI.rideService.stateOfCharge.unsubscribe,
-    formatter: formatInt,//formatBatteryDot1,
-    unit: '%',
-    defaultValue: '-'
-  },
-  {
-    id: 'calories',
-    name: 'Calories',
-    subscribe: COBI.tourService.calories.subscribe,
-    unsubscribe: COBI.tourService.calories.unsubscribe,
-    formatter: formatInt,
-    unit: 'kcal',
-    defaultValue: '-'
-  },
-  {
-    id: 'ascent',
-    name: 'Ascent',
-    subscribe: COBI.tourService.ascent.subscribe,
-    unsubscribe: COBI.tourService.ascent.unsubscribe,
-    formatter: formatInt,
-    unit: 'm',
-    defaultValue: '-'
+    min: 0,
+    max: 110
   },
   {
     id: 'heart_rate',
-    name: 'Heart Rate',
     subscribe: COBI.rideService.heartRate.subscribe,
     unsubscribe: COBI.rideService.heartRate.unsubscribe,
     formatter: formatInt,
-    unit: 'bpm',
-    defaultValue: '-'
+    min: 60,
+    max: 160
   },
-  //{
-    //id: 'duration',
-    //name: 'Duration',
-    //subscribe: COBI.tourService.ridingDuration.subscribe,
-    //unsubscribe: COBI.tourService.ridingDuration.unsubscribe,
-    //formatter: formatMins,
-    //unit: 'min',
-    //defaultValue: '-'
-  //}
+  {
+    id: 'user_power',
+    subscribe: COBI.rideService.userPower.subscribe,
+    unsubscribe: COBI.rideService.userPower.unsubscribe,
+    formatter: formatInt,
+    min: 0,
+    max: 160
+  },
+  {
+    id: 'battery',
+    subscribe: function(callback) {
+      COBI.battery.state.subscribe(function(batteryCondition) {
+        callback(batteryCondition.batteryLevel);
+      });
+    },
+    unsubscribe: COBI.battery.state.unsubscribe,
+    formatter: formatBatteryInt,
+    min: 5,
+    max: 100
+  },
+  {
+    id: 'ascent',
+    subscribe: COBI.tourService.ascent.subscribe,
+    unsubscribe: COBI.tourService.ascent.unsubscribe,
+    formatter: formatInt,
+    min: 0,
+    max: 1500
+  },
+  {
+    id: 'calories',
+    subscribe: COBI.tourService.calories.subscribe,
+    unsubscribe: COBI.tourService.calories.unsubscribe,
+    formatter: formatInt,
+    min: 0,
+    max: 1800
+  }
 ];
+
+// Initialize subscriptions
+$(window).on('load', function() {
+    definitions.forEach(function(def) {
+        def.subscribe(function(value) {
+            
+            // Format for display
+            var formattedValue = def.formatter(value);
+            $('#' + def.id + '_value').html(formattedValue);
+            
+            // Calculate percentage for progress bar
+            var numValue = parseFloat(value);
+            if (isNaN(numValue)) numValue = 0;
+            
+            // Special handling for battery returning ratio e.g., 0.85
+            if (def.id === 'battery' && numValue <= 1.0) {
+                numValue = numValue * 100;
+            }
+
+            // Map value to percentage bounds
+            var percentage = ((numValue - def.min) / (def.max - def.min)) * 100;
+            
+            // Clamp percentage between 0 and 100
+            percentage = Math.max(0, Math.min(100, percentage));
+            
+            $('#' + def.id + '_bar').css('width', percentage + '%');
+        });
+    });
+});
