@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COBI Simulator</title>
+<style>
+  :root {
+    --bg: #14141a; --panel: #1f1f27; --panel2: #282832; --line: #34343f;
+    --text: #e8e8ee; --muted: #8b8b99; --accent: #00c8e6; --warn: #ffb020; --err: #ff5a5a; --ok: #3ddc84;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header h1 span { color: var(--accent); }
+  header .grow { flex: 1; }
+  label { color: var(--muted); font-size: 12px; }
+  input, select, button { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+  input[type=range] { padding: 0; width: 100%; accent-color: var(--accent); background: none; border: 0; }
+  input[type=number] { width: 80px; }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+  button.on { background: var(--accent); color: #000; border-color: var(--accent); }
+  main { display: grid; grid-template-columns: minmax(0, auto) minmax(320px, 1fr); gap: 16px; padding: 16px; align-items: start; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .device { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .frame { background: #000; border: 10px solid #2a2a33; border-radius: 22px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,.5); max-width: 100%; }
+  .frame iframe { display: block; border: 0; background: #1d1d23; }
+  .status { font-size: 12px; color: var(--muted); }
+  .status b.ok { color: var(--ok); } .status b.err { color: var(--err); } .status b.warn { color: var(--warn); }
+  .panels { display: grid; gap: 12px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  section h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .sensors { display: grid; grid-template-columns: 110px 1fr 80px 46px; gap: 6px 10px; align-items: center; }
+  .sensors .name { font-size: 13px; }
+  .sensors .unit { color: var(--muted); font-size: 12px; }
+  .pad { display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 40px); gap: 6px; }
+  .pad button { padding: 0; font-size: 16px; }
+  #log { height: 220px; overflow: auto; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: #101015; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; white-space: pre-wrap; word-break: break-all; }
+  #log .in { color: var(--accent); } #log .out { color: var(--warn); } #log .sys { color: var(--muted); } #log .err { color: var(--err); }
+  .hint { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+  .progress { height: 6px; background: var(--panel2); border-radius: 3px; overflow: hidden; flex: 1; min-width: 120px; }
+  .progress div { height: 100%; width: 0; background: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>COBI <span>Simulator</span></h1>
+  <div class="row">
+    <label for="url">Modul</label>
+    <input id="url" value="../" size="22">
+    <label for="context">Kontext</label>
+    <select id="context">
+      <option value="onRide">onRide (Fahrt)</option>
+      <option value="offRide">offRide</option>
+      <option value="onRideSettings">onRideSettings</option>
+      <option value="offRideSettings">offRideSettings</option>
+    </select>
+    <label for="size">Größe</label>
+    <select id="size">
+      <option value="375x667">Hochformat 375×667</option>
+      <option value="667x375">Querformat 667×375</option>
+      <option value="320x568">Klein 320×568</option>
+      <option value="414x896">Groß 414×896</option>
+    </select>
+    <button id="reload" class="primary">Laden</button>
+  </div>
+  <div class="grow"></div>
+</header>
+
+<main>
+  <div class="device">
+    <div class="frame"><iframe id="module" title="COBI-Modul"></iframe></div>
+    <div class="status" id="status">Noch nicht geladen</div>
+  </div>
+
+  <div class="panels">
+    <section>
+      <h2>Fahrt simulieren</h2>
+      <div class="row">
+        <button id="rideBtn">▶ Fahrt starten</button>
+        <button id="resetBtn">Zurücksetzen</button>
+        <label for="speedup">Zeitraffer</label>
+        <select id="speedup">
+          <option value="1">1×</option><option value="5">5×</option><option value="20" selected>20×</option><option value="60">60×</option>
+        </select>
+      </div>
+      <p class="hint">Erzeugt laufend plausible Werte. Akku entlädt sich, Strecke, Höhe und Kalorien steigen.</p>
+    </section>
+
+    <section>
+      <h2>Sensoren</h2>
+      <div class="sensors" id="sensors"></div>
+      <div class="row" style="margin-top:8px">
+        <label><input type="checkbox" id="charging"> Akku lädt</label>
+        <label><input type="checkbox" id="touch" checked> Touch erlaubt</label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Daumen-Controller</h2>
+      <div class="row" style="gap:16px">
+        <div class="pad">
+          <span></span><button data-action="UP">▲</button><span></span>
+          <button data-action="LEFT">◀</button><button data-action="SELECT">●</button><button data-action="RIGHT">▶</button>
+          <span></span><button data-action="DOWN">▼</button><span></span>
+        </div>
+        <p class="hint" style="flex:1">Pfeiltasten und Enter funktionieren auch, solange der Fokus nicht in einem Eingabefeld liegt.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Aufzeichnung abspielen</h2>
+      <div class="row">
+        <input type="file" id="trackFile" accept=".json,.cobitrack,.gpx">
+        <button id="playBtn" disabled>▶ Abspielen</button>
+        <div class="progress"><div id="trackProgress"></div></div>
+      </div>
+      <p class="hint" id="trackInfo">cobitrack-JSON (z. B. aus den Beispielen des alten Simulators) oder GPX-Datei mit Zeitstempeln.</p>
+    </section>
+
+    <section>
+      <h2>Protokoll</h2>
+      <div class="row" style="margin-bottom:6px">
+        <label><input type="checkbox" id="logIn" checked> an Modul</label>
+        <label><input type="checkbox" id="logOut" checked> vom Modul</label>
+        <button id="clearLog">Leeren</button>
+        <button id="dumpState">Zustand ausgeben</button>
+      </div>
+      <div id="log"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Sensors: path, unit conversion between UI value and COBI payload ----------
+  var SENSORS = [
+    { key: 'speed',     name: 'Geschwindigkeit', unit: 'km/h', min: 0, max: 60,    step: 0.1, value: 0,   path: 'rideService/speed',          toPayload: function (v) { return v / 3.6; }, fromPayload: function (p) { return p * 3.6; } },
+    { key: 'avgSpeed',  name: 'Ø Geschw.',       unit: 'km/h', min: 0, max: 60,    step: 0.1, value: 0,   path: 'tourService/averageSpeed',   toPayload: function (v) { return v / 3.6; }, fromPayload: function (p) { return p * 3.6; } },
+    { key: 'cadence',   name: 'Trittfrequenz',   unit: 'rpm',  min: 0, max: 150,   step: 1,   value: 0,   path: 'rideService/cadence' },
+    { key: 'heartRate', name: 'Herzfrequenz',    unit: 'bpm',  min: 0, max: 220,   step: 1,   value: 70,  path: 'rideService/heartRate' },
+    { key: 'power',     name: 'Leistung',        unit: 'W',    min: 0, max: 600,   step: 1,   value: 0,   path: 'rideService/userPower' },
+    { key: 'battery',   name: 'Akku',            unit: '%',    min: 0, max: 100,   step: 1,   value: 100, path: 'battery/state',
+      toPayload: function (v) { return { batteryLevel: v, state: $('charging').checked ? 'CHARGING' : 'DISCHARGING' }; },
+      fromPayload: function (p) { return p && p.batteryLevel; } },
+    { key: 'ascent',    name: 'Anstieg',         unit: 'm',    min: 0, max: 3000,  step: 1,   value: 0,   path: 'tourService/ascent' },
+    { key: 'calories',  name: 'Kalorien',        unit: 'kcal', min: 0, max: 3000,  step: 1,   value: 0,   path: 'tourService/calories' },
+    { key: 'distance',  name: 'Strecke',         unit: 'km',   min: 0, max: 200,   step: 0.01,value: 0,   path: 'tourService/ridingDistance', toPayload: function (v) { return v * 1000; }, fromPayload: function (p) { return p / 1000; } },
+    { key: 'duration',  name: 'Fahrzeit',        unit: 'min',  min: 0, max: 600,   step: 0.1, value: 0,   path: 'tourService/ridingDuration', toPayload: function (v) { return v * 60; }, fromPayload: function (p) { return p / 60; } }
+  ];
+  var byKey = {}, byPath = {};
+  SENSORS.forEach(function (s) { byKey[s.key] = s; byPath[s.path] = s; });
+
+  function $(id) { return document.getElementById(id); }
+  var iframe = $('module');
+  var cache = {};          // last known value per path (what the "hub" knows)
+  var connected = false;
+
+  // ---------- Logging ----------
+  function log(kind, text) {
+    if (kind === 'in' && !$('logIn').checked) return;
+    if (kind === 'out' && !$('logOut').checked) return;
+    var el = $('log');
+    var line = document.createElement('div');
+    line.className = kind;
+    var t = new Date().toLocaleTimeString('de-DE');
+    line.textContent = t + (kind === 'in' ? '  → ' : kind === 'out' ? '  ← ' : '  · ') + text;
+    el.appendChild(line);
+    while (el.childNodes.length > 500) el.removeChild(el.firstChild);
+    el.scrollTop = el.scrollHeight;
+  }
+  function setStatus(html) { $('status').innerHTML = html; }
+
+  // ---------- Bridge into the module ----------
+  function moduleWindow() {
+    try { var w = iframe.contentWindow; void w.document; return w; } catch (e) { return null; }
+  }
+
+  // Send a value to the module, like the COBI hub would
+  function notify(path, payload, silent) {
+    cache[path] = payload;
+    var w = moduleWindow();
+    if (!w || !w.COBI || !w.COBI.__receiveMessage) return;
+    w.COBI.__receiveMessage({ action: 'NOTIFY', path: path, payload: payload, timestamp: Date.now() });
+    if (!silent) log('in', path + ' = ' + JSON.stringify(payload));
+  }
+
+  // Install the fake native iOS bridge that cobi.js looks for (window.webkit.messageHandlers)
+  function installBridge() {
+    var w = moduleWindow();
+    if (!w) {
+      setStatus('<b class="err">Kein Zugriff auf das Modul.</b> Es muss von derselben Adresse kommen wie der Simulator (und über http/https, nicht file://).');
+      return;
+    }
+    if (!w.COBI) {
+      setStatus('<b class="warn">Geladen, aber kein COBI.js gefunden.</b>');
+      log('err', 'COBI.js nicht im Modul gefunden');
+      return;
+    }
+    w.webkit = {
+      messageHandlers: {
+        cobiAuth: {
+          postMessage: function (req) {
+            log('out', 'auth ' + JSON.stringify(req));
+            setTimeout(function () { w.COBI.__authenticated({ confirmed: true, apiKey: (req && req.token) || 'simulator' }); }, 0);
+          }
+        },
+        cobiShell: {
+          postMessage: function (msg) {
+            msg = JSON.parse(JSON.stringify(msg));
+            log('out', msg.action + ' ' + msg.path + (msg.payload !== undefined ? ' = ' + JSON.stringify(msg.payload) : ''));
+            if (msg.action === 'WRITE') {
+              setTimeout(function () { notify(msg.path, msg.payload, true); }, 0);
+            } else if (msg.action === 'READ') {
+              if (msg.path in cache) setTimeout(function () { notify(msg.path, cache[msg.path], true); }, 0);
+            }
+          }
+        }
+      }
+    };
+    connected = true;
+    setStatus('<b class="ok">Verbunden</b> · COBI.js ' + (w.COBI.specVersion || '?') + ' · Kontext ' + w.COBI.parameters.context());
+    log('sys', 'Modul geladen, Brücke installiert');
+    // Push the current state once so the module shows values right away
+    setTimeout(pushAll, 600);
+  }
+
+  function pushAll() {
+    notify('app/touchInteractionEnabled', $('touch').checked);
+    SENSORS.forEach(function (s) { sendSensor(s); });
+  }
+
+  function loadModule() {
+    connected = false;
+    var url = $('url').value.trim() || '../';
+    var ctx = $('context').value;
+    var full = url + (url.indexOf('?') === -1 ? '?' : '&') + 'context=' + encodeURIComponent(ctx);
+    var size = $('size').value.split('x');
+    iframe.width = size[0]; iframe.height = size[1];
+    setStatus('Lade ' + full + ' …');
+    log('sys', 'Lade ' + full);
+    iframe.src = full;
+  }
+  iframe.addEventListener('load', function () { if (iframe.src) installBridge(); });
+
+  // ---------- Sensor UI ----------
+  function fmt(s, v) { var d = s.step < 1 ? (s.step < 0.1 ? 2 : 1) : 0; return Number(v).toFixed(d); }
+
+  function sendSensor(s) {
+    var payload = s.toPayload ? s.toPayload(s.value) : s.value;
+    notify(s.path, payload);
+  }
+
+  function setSensor(s, v, send) {
+    v = Math.max(s.min, Math.min(s.max, v));
+    s.value = v;
+    s.range.value = v;
+    s.num.value = fmt(s, v);
+    if (send) sendSensor(s);
+  }
+
+  SENSORS.forEach(function (s) {
+    var grid = $('sensors');
+    var name = document.createElement('div'); name.className = 'name'; name.textContent = s.name;
+    var range = document.createElement('input'); range.type = 'range'; range.min = s.min; range.max = s.max; range.step = s.step;
+    var num = document.createElement('input'); num.type = 'number'; num.min = s.min; num.max = s.max; num.step = s.step;
+    var unit = document.createElement('div'); unit.className = 'unit'; unit.textContent = s.unit;
+    range.setAttribute('aria-label', s.name); num.setAttribute('aria-label', s.name + ' in ' + s.unit);
+    grid.appendChild(name); grid.appendChild(range); grid.appendChild(num); grid.appendChild(unit);
+    s.range = range; s.num = num;
+    range.addEventListener('input', function () { setSensor(s, parseFloat(range.value), true); });
+    num.addEventListener('change', function () { var v = parseFloat(num.value); if (!isNaN(v)) setSensor(s, v, true); });
+    setSensor(s, s.value, false);
+  });
+
+  $('charging').addEventListener('change', function () { sendSensor(byKey.battery); });
+  $('touch').addEventListener('change', function () { notify('app/touchInteractionEnabled', $('touch').checked); });
+
+  // ---------- Thumb controller ----------
+  function press(action) { notify('hub/externalInterfaceAction', action); }
+  Array.prototype.forEach.call(document.querySelectorAll('.pad button'), function (b) {
+    b.addEventListener('click', function () { press(b.getAttribute('data-action')); });
+  });
+  var KEYS = { ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT', Enter: 'SELECT' };
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+    if (KEYS[e.key]) { e.preventDefault(); press(KEYS[e.key]); }
+  });
+
+  // ---------- Simulated ride ----------
+  var rideTimer = null, rideT = 0;
+  function rideStep() {
+    var dt = 0.5 * parseFloat($('speedup').value);  // simulated seconds per tick
+    rideT += dt;
+    var t = rideT;
+    var target = 24 + 6 * Math.sin(t / 90) + 3 * Math.sin(t / 17);       // km/h
+    var speed = Math.max(0, byKey.speed.value + (target - byKey.speed.value) * 0.15 + (Math.random() - 0.5) * 0.8);
+    var grade = 0.03 * Math.sin(t / 140);                                // -3 % .. +3 %
+    var power = Math.max(0, 40 + speed * 4 + grade * 2500 + (Math.random() - 0.5) * 20);
+    var cadence = speed < 1 ? 0 : Math.min(120, 55 + speed * 1.2 + (Math.random() - 0.5) * 6);
+    var hrTarget = 75 + power * 0.35;
+    var hr = byKey.heartRate.value + (hrTarget - byKey.heartRate.value) * 0.05;
+
+    var distKm = byKey.distance.value + speed / 3.6 * dt / 1000;
+    var durMin = byKey.duration.value + (speed > 1 ? dt / 60 : 0);
+    var ascent = byKey.ascent.value + (grade > 0 ? speed / 3.6 * dt * grade : 0);
+    var kcal = byKey.calories.value + power * dt / 1000 * 1.0;           // ~1 kcal per kJ with ~24 % efficiency
+    var avg = durMin > 0 ? distKm / (durMin / 60) : 0;
+    var batt = $('charging').checked ? byKey.battery.value + dt * 0.02 : byKey.battery.value - dt * 0.005 * (1 + power / 200);
+
+    setSensor(byKey.speed, speed, true);
+    setSensor(byKey.power, power, true);
+    setSensor(byKey.cadence, cadence, true);
+    setSensor(byKey.heartRate, hr, true);
+    setSensor(byKey.distance, distKm, true);
+    setSensor(byKey.duration, durMin, true);
+    setSensor(byKey.ascent, ascent, true);
+    setSensor(byKey.calories, kcal, true);
+    setSensor(byKey.avgSpeed, avg, true);
+    var oldBatt = Math.round(byKey.battery.value);
+    setSensor(byKey.battery, batt, false);
+    if (Math.round(batt) !== oldBatt) sendSensor(byKey.battery);    // battery only reports whole percent
+  }
+  $('rideBtn').addEventListener('click', function () {
+    if (rideTimer) {
+      clearInterval(rideTimer); rideTimer = null;
+      this.textContent = '▶ Fahrt starten'; this.classList.remove('on');
+    } else {
+      stopTrack();
+      rideTimer = setInterval(rideStep, 500);
+      this.textContent = '■ Fahrt stoppen'; this.classList.add('on');
+    }
+  });
+  $('resetBtn').addEventListener('click', function () {
+    rideT = 0;
+    ['speed', 'avgSpeed', 'cadence', 'power', 'ascent', 'calories', 'distance', 'duration'].forEach(function (k) { setSensor(byKey[k], 0, true); });
+    setSensor(byKey.heartRate, 70, true);
+    setSensor(byKey.battery, 100, true);
+  });
+
+  // ---------- Track playback (cobitrack JSON or GPX) ----------
+  var track = null, trackTimer = null;
+
+  function parseGpx(text) {
+    var doc = new DOMParser().parseFromString(text, 'application/xml');
+    var pts = Array.prototype.map.call(doc.getElementsByTagName('trkpt'), function (p) {
+      var time = p.getElementsByTagName('time')[0];
+      var ele = p.getElementsByTagName('ele')[0];
+      return { lat: parseFloat(p.getAttribute('lat')), lon: parseFloat(p.getAttribute('lon')),
+               ele: ele ? parseFloat(ele.textContent) : null, t: time ? Date.parse(time.textContent) : NaN };
+    }).filter(function (p) { return !isNaN(p.t); });
+    if (pts.length < 2) throw new Error('GPX enthält keine Trackpunkte mit Zeitstempel');
+    function haversine(a, b) {
+      var R = 6371000, r = Math.PI / 180;
+      var dLat = (b.lat - a.lat) * r, dLon = (b.lon - a.lon) * r;
+      var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+    }
+    var events = [], dist = 0, asc = 0, moving = 0;
+    for (var i = 1; i < pts.length; i++) {
+      var a = pts[i - 1], b = pts[i], d = haversine(a, b), dt = (b.t - a.t) / 1000;
+      if (dt <= 0) continue;
+      var v = d / dt;
+      dist += d; if (v > 0.5) moving += dt;
+      if (a.ele != null && b.ele != null && b.ele > a.ele) asc += b.ele - a.ele;
+      events.push({ timestamp: b.t, path: 'rideService/speed', payload: v });
+      events.push({ timestamp: b.t, path: 'tourService/ridingDistance', payload: dist });
+      events.push({ timestamp: b.t, path: 'tourService/ridingDuration', payload: moving });
+      events.push({ timestamp: b.t, path: 'tourService/averageSpeed', payload: moving > 0 ? dist / moving : 0 });
+      events.push({ timestamp: b.t, path: 'tourService/ascent', payload: asc });
+      events.push({ timestamp: b.t, path: 'mobile/location', payload: { coordinate: { latitude: b.lat, longitude: b.lon }, altitude: b.ele || 0, speed: v, bearing: -1 } });
+    }
+    return events;
+  }
+
+  $('trackFile').addEventListener('change', function () {
+    var f = this.files[0]; if (!f) return;
+    stopTrack();
+    $('trackProgress').style.width = '0';
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var text = String(reader.result);
+        var events = /\.gpx$/i.test(f.name) || /^\s*<\?xml|<gpx/i.test(text.slice(0, 200)) ? parseGpx(text) : JSON.parse(text);
+        if (!Array.isArray(events)) events = events.events || [];
+        events = events.filter(function (e) { return e && e.path && e.timestamp != null; })
+                       .sort(function (a, b) { return a.timestamp - b.timestamp; });
+        if (!events.length) throw new Error('Keine Ereignisse gefunden');
+        track = { events: events, i: 0, start: events[0].timestamp, end: events[events.length - 1].timestamp };
+        var mins = ((track.end - track.start) / 60000).toFixed(1);
+        $('trackInfo').textContent = f.name + ': ' + events.length + ' Ereignisse, ' + mins + ' min';
+        $('playBtn').disabled = false;
+        log('sys', 'Aufzeichnung geladen: ' + f.name);
+      } catch (e) {
+        track = null; $('playBtn').disabled = true;
+        $('trackInfo').textContent = 'Fehler: ' + e.message;
+        log('err', 'Aufzeichnung: ' + e.message);
+      }
+    };
+    reader.readAsText(f);
+  });
+
+  function stopTrack() {
+    if (trackTimer) { clearInterval(trackTimer); trackTimer = null; }
+    $('playBtn').textContent = '▶ Abspielen'; $('playBtn').classList.remove('on');
+  }
+
+  $('playBtn').addEventListener('click', function () {
+    if (!track) return;
+    if (trackTimer) { stopTrack(); return; }
+    if (rideTimer) $('rideBtn').click();
+    if (track.i >= track.events.length) track.i = 0;
+    var simNow = track.events[track.i].timestamp;
+    var last = Date.now();
+    this.textContent = '■ Stoppen'; this.classList.add('on');
+    trackTimer = setInterval(function () {
+      var now = Date.now();
+      simNow += (now - last) * parseFloat($('speedup').value);
+      last = now;
+      var latest = {};
+      while (track.i < track.events.length && track.events[track.i].timestamp <= simNow) {
+        var e = track.events[track.i++];
+        latest[e.path] = e.payload;                   // only send the newest value per path each tick
+      }
+      Object.keys(latest).forEach(function (p) {
+        var s = byPath[p];
+        if (s && s.fromPayload) setSensor(s, s.fromPayload(latest[p]), false);
+        else if (s) setSensor(s, latest[p], false);
+        notify(p, latest[p]);
+      });
+      $('trackProgress').style.width = (100 * (simNow - track.start) / Math.max(1, track.end - track.start)) + '%';
+      if (track.i >= track.events.length) { stopTrack(); log('sys', 'Aufzeichnung zu Ende'); }
+    }, 250);
+  });
+
+  // ---------- Misc ----------
+  $('clearLog').addEventListener('click', function () { $('log').innerHTML = ''; });
+  $('dumpState').addEventListener('click', function () { log('sys', 'Zustand ' + JSON.stringify(cache)); });
+  $('reload').addEventListener('click', loadModule);
+  $('url').addEventListener('keydown', function (e) { if (e.key === 'Enter') loadModule(); });
+  ['context', 'size'].forEach(function (id) { $(id).addEventListener('change', loadModule); });
+
+  // Allow ?module=…&context=… in the simulator's own URL
+  var q = new URLSearchParams(location.search);
+  if (q.get('module')) $('url').value = q.get('module');
+  if (q.get('context')) $('context').value = q.get('context');
+  loadModule();
+})();
+</script>
+</body>
+</html>
