@@ -95,11 +95,6 @@ $(window).on('load', function() {
             var numValue = parseFloat(value);
             if (isNaN(numValue)) numValue = 0;
             
-            // Special handling for battery returning ratio e.g., 0.85
-            if (def.id === 'battery' && numValue <= 1.0) {
-                numValue = numValue * 100;
-            }
-
             // Map value to percentage bounds
             var percentage = ((numValue - def.min) / (def.max - def.min)) * 100;
             
