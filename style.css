@@ -46,11 +46,11 @@ ul {
 
 .value {
   text-transform: uppercase;
-  font-size: 1.6rem;
+  font-size: 1.92rem; /* +20 % (vorher 1.6rem) */
 }
 
 .unit {
-  font: 100 .55rem/22px 'UniSansRegular', Avenir, Heveltica, Arial, san-serif; color: #00c8e6;
+  font: 100 .825rem/22px 'UniSansRegular', Avenir, Heveltica, Arial, san-serif; color: #00c8e6;
   letter-spacing: .05rem;  
 }
 
