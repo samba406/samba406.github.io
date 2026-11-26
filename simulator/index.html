@@ -31,16 +31,30 @@
   .frame.phone { border-width: 12px; border-radius: 56px; }
   .frame iframe { display: block; border: 0; background: #1d1d23; flex: none; }
   /* Fixed COBI app sidebar (always visible in the app, outside the module) */
-  .cobibar { flex: none; width: 150px; background: #2a2a33; display: flex; flex-direction: column; justify-content: space-around; padding: 14px 0 14px 20px; font-family: 'UniSansRegular', Avenir, Arial, sans-serif; color: #fff; text-align: left; }
+  .cobibar { flex: none; width: 135px; background: #2d2d37; display: flex; flex-direction: column; justify-content: space-around; padding: 14px 0 14px 19px; font-family: 'UniSansRegular', Avenir, Arial, sans-serif; color: #fff; text-align: left; }
   .cobibar[hidden] { display: none; }
   .cobibar .k { color: #00c8e6; font-size: 16px; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
-  .cobibar .v { font-size: 40px; line-height: 1.05; white-space: nowrap; }
+  .cobibar .v { font-size: 34px; line-height: 1.05; white-space: nowrap; }
   .cobibar .speed { display: flex; align-items: flex-end; gap: 0; }
   .cobibar .speed .v { flex: 1; }
   .cobibar .batt { display: flex; flex-direction: column-reverse; gap: 2px; margin: 0 18px 6px 0; }
   .cobibar .batt i { display: block; width: 12px; height: 5px; background: #fff; }
   .cobibar .batt i.off { background: #55555f; }
   .cobibar .batt.low i:not(.off) { background: #ff5a5a; }
+  /* Module area plus the COBI app's bottom overlay (drawn on top of the module) */
+  .screen { position: relative; flex: none; }
+  .hud { position: absolute; left: 50%; bottom: 0; width: 290px; height: 72px; margin-left: -145px; pointer-events: none;
+         background: #2d2d37; clip-path: polygon(32px 0, 258px 0, 100% 100%, 0 100%);
+         font-family: 'UniSansRegular', Avenir, Arial, sans-serif; color: #fff; }
+  .hud[hidden] { display: none; }
+  .hud .assist { position: absolute; top: 5px; left: 34px; width: 222px; height: 22px; display: flex; gap: 2px; transform: skewX(-25deg); border-radius: 6px 11px 11px 6px; overflow: hidden; }
+  .hud .assist i { flex: 1; background: #3b3b47; }
+  .hud .assist i.on { background: #00c8e6; }
+  .hud .level { position: absolute; top: 31px; left: 43px; width: 204px; height: 8px; display: flex; gap: 4px; transform: skewX(-25deg); }
+  .hud .level i { flex: 1; background: #55555f; }
+  .hud .level i.on { background: #fff; }
+  .hud .info { position: absolute; top: 45px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 6px; font-size: 17px; line-height: 22px; }
+  .hud svg { display: block; }
   .status { font-size: 12px; color: var(--muted); }
   .status b.ok { color: var(--ok); } .status b.err { color: var(--err); } .status b.warn { color: var(--warn); }
   .panels { display: grid; gap: 12px; }
@@ -81,6 +95,7 @@
       <option value="375x667">Hochformat 375×667</option>
     </select>
     <label><input type="checkbox" id="cobibarOn" checked> COBI-Leiste</label>
+    <label><input type="checkbox" id="hudOn" checked> Untere Anzeige</label>
     <button id="reload" class="primary">Laden</button>
   </div>
   <div class="grow"></div>
@@ -95,7 +110,18 @@
         <div><div class="k">Geschw Ø</div><div class="v" id="barAvg">0,0</div></div>
         <div><div class="k">Geschw</div><div class="speed"><div class="v" id="barSpeed">0,0</div><div class="batt" id="barBatt" title="Akku"><i></i><i></i><i></i><i></i><i></i></div></div></div>
       </aside>
-      <iframe id="module" title="COBI-Modul"></iframe>
+      <div class="screen" id="screen">
+        <iframe id="module" title="COBI-Modul"></iframe>
+        <div class="hud" id="hud" aria-label="Untere COBI-Anzeige">
+          <div class="assist" id="hudAssist"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="level" id="hudLevel"><i></i><i></i><i></i><i></i></div>
+          <div class="info">
+            <svg width="44" height="22" viewBox="0 0 44 22" aria-hidden="true"><rect x="1" y="1" width="37" height="20" rx="3" fill="none" stroke="#fff" stroke-width="2"/><rect x="39" y="7" width="3" height="8" rx="1" fill="#fff"/><rect id="hudBattFill" x="4" y="4" width="31" height="14" rx="1" fill="#fff"/></svg>
+            <span id="hudRange">0 km</span>
+            <svg id="hudLight" width="30" height="22" viewBox="0 0 30 22" aria-hidden="true"></svg>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="status" id="status">Noch nicht geladen</div>
   </div>
@@ -119,6 +145,9 @@
       <div class="sensors" id="sensors"></div>
       <div class="row" style="margin-top:8px">
         <label><input type="checkbox" id="charging"> Akku lädt</label>
+        <label for="level">Stufe</label>
+        <select id="level"><option>0</option><option>1</option><option>2</option><option>3</option><option selected>4</option></select>
+        <label><input type="checkbox" id="light"> Licht an</label>
         <label><input type="checkbox" id="touch" checked> Touch erlaubt</label>
       </div>
     </section>
@@ -175,6 +204,8 @@
     { key: 'ascent',    name: 'Anstieg',         unit: 'm',    min: 0, max: 3000,  step: 1,   value: 0,   path: 'tourService/ascent' },
     { key: 'calories',  name: 'Kalorien',        unit: 'kcal', min: 0, max: 3000,  step: 1,   value: 0,   path: 'tourService/calories' },
     { key: 'distance',  name: 'Strecke',         unit: 'km',   min: 0, max: 200,   step: 0.01,value: 0,   path: 'tourService/ridingDistance', toPayload: function (v) { return v * 1000; }, fromPayload: function (p) { return p / 1000; } },
+    { key: 'assist',    name: 'Motor',           unit: '%',    min: 0, max: 100,   step: 1,   value: 0,   path: 'motor/assistanceIndicator' },
+    { key: 'range',     name: 'Reichweite',      unit: 'km',   min: 0, max: 200,   step: 1,   value: 92,  path: 'motor/range' },
     { key: 'duration',  name: 'Fahrzeit',        unit: 'min',  min: 0, max: 600,   step: 0.1, value: 0,   path: 'tourService/ridingDuration', toPayload: function (v) { return v * 60; }, fromPayload: function (p) { return p / 60; } }
   ];
   var byKey = {}, byPath = {};
@@ -272,13 +303,14 @@
   iframe.addEventListener('load', function () { if (iframe.src) installBridge(); });
 
   // Screen size in points; in landscape the COBI app shows its own sidebar left of the module
-  var BAR_WIDTH = 150;
+  var BAR_WIDTH = 135;   // measured on an iPhone screenshot of the COBI app
   function layoutDevice() {
     var opt = $('size').options[$('size').selectedIndex];
     var size = opt.value.split('x').map(Number);
     var landscape = size[0] > size[1];
     var showBar = landscape && $('cobibarOn').checked;
     $('cobibar').hidden = !showBar;
+    $('hud').hidden = !(showBar && $('hudOn').checked);
     $('frame').classList.toggle('phone', opt.getAttribute('data-phone') === '1');
     iframe.width = size[0] - (showBar ? BAR_WIDTH : 0);
     iframe.height = size[1];
@@ -289,7 +321,7 @@
   function clock(min) {
     var s = Math.floor(min * 60), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
     function p(n) { return (n < 10 ? '0' : '') + n; }
-    return h > 0 ? h + ':' + p(m) + ':' + p(sec) : p(m) + ':' + p(sec);
+    return h > 0 ? h + ':' + p(m) + ':' + p(sec) : m + ':' + p(sec);   // like the app: 1:15, 46:32, 1:02:05
   }
   function updateBar() {
     $('barDistance').textContent = de(byKey.distance.value, 1);
@@ -301,6 +333,19 @@
     for (var i = 0; i < segs.length; i++) segs[i].classList.toggle('off', i >= lit);
     $('barBatt').classList.toggle('low', byKey.battery.value <= 20);
     $('barBatt').title = 'Akku ' + Math.round(byKey.battery.value) + ' %';
+    updateHud();
+  }
+
+  function updateHud() {
+    var a = $('hudAssist').children, litA = Math.round(byKey.assist.value / 100 * a.length);
+    for (var i = 0; i < a.length; i++) a[i].classList.toggle('on', i < litA);
+    var l = $('hudLevel').children, lvl = parseInt($('level').value, 10);
+    for (var j = 0; j < l.length; j++) l[j].classList.toggle('on', j < lvl);
+    $('hudBattFill').setAttribute('width', (31 * byKey.battery.value / 100).toFixed(1));
+    $('hudRange').textContent = Math.round(byKey.range.value) + ' km';
+    $('hudLight').innerHTML = $('light').checked
+      ? '<path d="M14 3h4a8 8 0 0 1 0 16h-4z" fill="#fff"/><path d="M2 6h9M1 11h10M2 16h9" stroke="#fff" stroke-width="2" stroke-linecap="round"/>'
+      : '<path d="M2 7l7 8M9 7l-7 8" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M14 3h4a8 8 0 0 1 0 16h-4z" fill="none" stroke="#fff" stroke-width="2"/>';
   }
 
   // ---------- Sensor UI ----------
@@ -335,6 +380,8 @@
   });
 
   $('charging').addEventListener('change', function () { sendSensor(byKey.battery); });
+  $('level').addEventListener('change', updateHud);
+  $('light').addEventListener('change', updateHud);
   $('touch').addEventListener('change', function () { notify('app/touchInteractionEnabled', $('touch').checked); });
 
   // ---------- Thumb controller ----------
@@ -370,6 +417,9 @@
     var avg = durMin > 0 ? distKm / (durMin / 60) : 0;
     var batt = $('charging').checked ? byKey.battery.value + dt * 0.02 : byKey.battery.value - dt * 0.005 * (1 + power / 200);
 
+    var assist = speed < 25 ? Math.min(100, 10 + power / 3) : 0;      // motor cuts out at 25 km/h
+    setSensor(byKey.assist, assist, true);
+    setSensor(byKey.range, batt * 0.92, true);
     setSensor(byKey.speed, speed, true);
     setSensor(byKey.power, power, true);
     setSensor(byKey.cadence, cadence, true);
@@ -398,6 +448,8 @@
     ['speed', 'avgSpeed', 'cadence', 'power', 'ascent', 'calories', 'distance', 'duration'].forEach(function (k) { setSensor(byKey[k], 0, true); });
     setSensor(byKey.heartRate, 70, true);
     setSensor(byKey.battery, 100, true);
+    setSensor(byKey.assist, 0, true);
+    setSensor(byKey.range, 92, true);
   });
 
   // ---------- Track playback (cobitrack JSON or GPX) ----------
@@ -500,7 +552,7 @@
   $('dumpState').addEventListener('click', function () { log('sys', 'Zustand ' + JSON.stringify(cache)); });
   $('reload').addEventListener('click', loadModule);
   $('url').addEventListener('keydown', function (e) { if (e.key === 'Enter') loadModule(); });
-  ['context', 'size', 'cobibarOn'].forEach(function (id) { $(id).addEventListener('change', loadModule); });
+  ['context', 'size', 'cobibarOn', 'hudOn'].forEach(function (id) { $(id).addEventListener('change', loadModule); });
 
   // Allow ?module=…&context=… in the simulator's own URL
   var q = new URLSearchParams(location.search);
