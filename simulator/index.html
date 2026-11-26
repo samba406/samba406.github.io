@@ -32,7 +32,7 @@
   .frame iframe { display: block; border: 0; background: #1d1d23; flex: none; }
   /* Fixed COBI app sidebar (always visible in the app, outside the module) */
   .cobibar { flex: none; width: 135px; background: #2d2d37; display: flex; flex-direction: column; justify-content: space-around; padding: 14px 0 14px 19px; font-family: 'UniSansRegular', Avenir, Arial, sans-serif; color: #fff; text-align: left; }
-  .cobibar[hidden] { display: none; }
+  .cobibar[hidden], .cobibar .batt[hidden] { display: none; }
   .cobibar .k { color: #00c8e6; font-size: 16px; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
   .cobibar .v { font-size: 34px; line-height: 1.05; white-space: nowrap; }
   .cobibar .speed { display: flex; align-items: flex-end; gap: 0; }
@@ -113,7 +113,7 @@
       <div class="screen" id="screen">
         <iframe id="module" title="COBI-Modul"></iframe>
         <div class="hud" id="hud" aria-label="Untere COBI-Anzeige">
-          <div class="assist" id="hudAssist"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="assist" id="hudAssist" title="Motorunterstützung (im Simulator nicht nachgebildet)"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
           <div class="level" id="hudLevel"><i></i><i></i><i></i><i></i></div>
           <div class="info">
             <svg width="44" height="22" viewBox="0 0 44 22" aria-hidden="true"><rect x="1" y="1" width="37" height="20" rx="3" fill="none" stroke="#fff" stroke-width="2"/><rect x="39" y="7" width="3" height="8" rx="1" fill="#fff"/><rect id="hudBattFill" x="4" y="4" width="31" height="14" rx="1" fill="#fff"/></svg>
@@ -145,7 +145,7 @@
       <div class="sensors" id="sensors"></div>
       <div class="row" style="margin-top:8px">
         <label><input type="checkbox" id="charging"> Akku lädt</label>
-        <label for="level">Stufe</label>
+        <label for="level">Unterstützungsstufe</label>
         <select id="level"><option>0</option><option>1</option><option>2</option><option>3</option><option selected>4</option></select>
         <label><input type="checkbox" id="light"> Licht an</label>
         <label><input type="checkbox" id="touch" checked> Touch erlaubt</label>
@@ -204,7 +204,6 @@
     { key: 'ascent',    name: 'Anstieg',         unit: 'm',    min: 0, max: 3000,  step: 1,   value: 0,   path: 'tourService/ascent' },
     { key: 'calories',  name: 'Kalorien',        unit: 'kcal', min: 0, max: 3000,  step: 1,   value: 0,   path: 'tourService/calories' },
     { key: 'distance',  name: 'Strecke',         unit: 'km',   min: 0, max: 200,   step: 0.01,value: 0,   path: 'tourService/ridingDistance', toPayload: function (v) { return v * 1000; }, fromPayload: function (p) { return p / 1000; } },
-    { key: 'assist',    name: 'Motor',           unit: '%',    min: 0, max: 100,   step: 1,   value: 0,   path: 'motor/assistanceIndicator' },
     { key: 'range',     name: 'Reichweite',      unit: 'km',   min: 0, max: 200,   step: 1,   value: 92,  path: 'motor/range' },
     { key: 'duration',  name: 'Fahrzeit',        unit: 'min',  min: 0, max: 600,   step: 0.1, value: 0,   path: 'tourService/ridingDuration', toPayload: function (v) { return v * 60; }, fromPayload: function (p) { return p / 60; } }
   ];
@@ -311,6 +310,7 @@
     var showBar = landscape && $('cobibarOn').checked;
     $('cobibar').hidden = !showBar;
     $('hud').hidden = !(showBar && $('hudOn').checked);
+    $('barBatt').hidden = !$('hud').hidden;   // the app shows these only without the bottom overlay
     $('frame').classList.toggle('phone', opt.getAttribute('data-phone') === '1');
     iframe.width = size[0] - (showBar ? BAR_WIDTH : 0);
     iframe.height = size[1];
@@ -337,8 +337,6 @@
   }
 
   function updateHud() {
-    var a = $('hudAssist').children, litA = Math.round(byKey.assist.value / 100 * a.length);
-    for (var i = 0; i < a.length; i++) a[i].classList.toggle('on', i < litA);
     var l = $('hudLevel').children, lvl = parseInt($('level').value, 10);
     for (var j = 0; j < l.length; j++) l[j].classList.toggle('on', j < lvl);
     $('hudBattFill').setAttribute('width', (31 * byKey.battery.value / 100).toFixed(1));
@@ -417,8 +415,6 @@
     var avg = durMin > 0 ? distKm / (durMin / 60) : 0;
     var batt = $('charging').checked ? byKey.battery.value + dt * 0.02 : byKey.battery.value - dt * 0.005 * (1 + power / 200);
 
-    var assist = speed < 25 ? Math.min(100, 10 + power / 3) : 0;      // motor cuts out at 25 km/h
-    setSensor(byKey.assist, assist, true);
     setSensor(byKey.range, batt * 0.92, true);
     setSensor(byKey.speed, speed, true);
     setSensor(byKey.power, power, true);
@@ -448,7 +444,6 @@
     ['speed', 'avgSpeed', 'cadence', 'power', 'ascent', 'calories', 'distance', 'duration'].forEach(function (k) { setSensor(byKey[k], 0, true); });
     setSensor(byKey.heartRate, 70, true);
     setSensor(byKey.battery, 100, true);
-    setSensor(byKey.assist, 0, true);
     setSensor(byKey.range, 92, true);
   });
 
