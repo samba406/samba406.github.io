@@ -32,15 +32,14 @@
   .frame iframe { display: block; border: 0; background: #1d1d23; flex: none; }
   /* Fixed COBI app sidebar (always visible in the app, outside the module) */
   .cobibar { flex: none; width: 135px; background: #2d2d37; display: flex; flex-direction: column; justify-content: space-around; padding: 14px 0 14px 19px; font-family: 'UniSansRegular', Avenir, Arial, sans-serif; color: #fff; text-align: left; }
-  .cobibar[hidden], .cobibar .batt[hidden] { display: none; }
+  .cobibar[hidden], .cobibar .lvl[hidden] { display: none; }
   .cobibar .k { color: #00c8e6; font-size: 16px; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
   .cobibar .v { font-size: 34px; line-height: 1.05; white-space: nowrap; }
   .cobibar .speed { display: flex; align-items: flex-end; gap: 0; }
   .cobibar .speed .v { flex: 1; }
-  .cobibar .batt { display: flex; flex-direction: column-reverse; gap: 2px; margin: 0 18px 6px 0; }
-  .cobibar .batt i { display: block; width: 12px; height: 5px; background: #fff; }
-  .cobibar .batt i.off { background: #55555f; }
-  .cobibar .batt.low i:not(.off) { background: #ff5a5a; }
+  .cobibar .lvl { display: flex; flex-direction: column-reverse; gap: 2px; margin: 0 18px 6px 0; }
+  .cobibar .lvl i { display: block; width: 12px; height: 5px; background: #fff; }
+  .cobibar .lvl i.off { background: #55555f; }
   /* Module area plus the COBI app's bottom overlay (drawn on top of the module) */
   .screen { position: relative; flex: none; }
   .hud { position: absolute; left: 50%; bottom: 0; width: 290px; height: 72px; margin-left: -145px; pointer-events: none;
@@ -108,7 +107,7 @@
         <div><div class="k">Strecke</div><div class="v" id="barDistance">0,0</div></div>
         <div><div class="k">Dauer</div><div class="v" id="barDuration">00:00</div></div>
         <div><div class="k">Geschw Ø</div><div class="v" id="barAvg">0,0</div></div>
-        <div><div class="k">Geschw</div><div class="speed"><div class="v" id="barSpeed">0,0</div><div class="batt" id="barBatt" title="Akku"><i></i><i></i><i></i><i></i><i></i></div></div></div>
+        <div><div class="k">Geschw</div><div class="speed"><div class="v" id="barSpeed">0,0</div><div class="lvl" id="barLevel" title="Unterstützungsstufe"><i></i><i></i><i></i><i></i></div></div></div>
       </aside>
       <div class="screen" id="screen">
         <iframe id="module" title="COBI-Modul"></iframe>
@@ -310,7 +309,7 @@
     var showBar = landscape && $('cobibarOn').checked;
     $('cobibar').hidden = !showBar;
     $('hud').hidden = !(showBar && $('hudOn').checked);
-    $('barBatt').hidden = !$('hud').hidden;   // the app shows these only without the bottom overlay
+    $('barLevel').hidden = !$('hud').hidden;  // the app shows the support level here only without the bottom overlay
     $('frame').classList.toggle('phone', opt.getAttribute('data-phone') === '1');
     iframe.width = size[0] - (showBar ? BAR_WIDTH : 0);
     iframe.height = size[1];
@@ -328,11 +327,10 @@
     $('barDuration').textContent = clock(byKey.duration.value);
     $('barAvg').textContent = de(byKey.avgSpeed.value, 1);
     $('barSpeed').textContent = de(byKey.speed.value, 1);
-    var lit = Math.round(byKey.battery.value / 20);
-    var segs = $('barBatt').children;
+    var lit = parseInt($('level').value, 10);
+    var segs = $('barLevel').children;
     for (var i = 0; i < segs.length; i++) segs[i].classList.toggle('off', i >= lit);
-    $('barBatt').classList.toggle('low', byKey.battery.value <= 20);
-    $('barBatt').title = 'Akku ' + Math.round(byKey.battery.value) + ' %';
+    $('barLevel').title = 'Unterstützungsstufe ' + lit;
     updateHud();
   }
 
@@ -378,7 +376,7 @@
   });
 
   $('charging').addEventListener('change', function () { sendSensor(byKey.battery); });
-  $('level').addEventListener('change', updateHud);
+  $('level').addEventListener('change', updateBar);
   $('light').addEventListener('change', updateHud);
   $('touch').addEventListener('change', function () { notify('app/touchInteractionEnabled', $('touch').checked); });
 

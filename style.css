@@ -17,7 +17,7 @@ ul {
     background: #2d2d37;
     color: #FFF;
     box-shadow: 0;
-    padding: .7rem .5rem;
+    padding: .35rem .5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -33,7 +33,7 @@ ul {
   font: 100 .45rem/15px 'UniSansRegularItalic', Avenir, Heveltica, Arial, san-serif; color: #666;
   letter-spacing: .05rem;
   text-transform: uppercase;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0;
 }
 
 .data-row {
@@ -41,12 +41,13 @@ ul {
   align-items: baseline;
   justify-content: center;
   gap: 0.4rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .value {
   text-transform: uppercase;
   font-size: 1.92rem; /* +20 % (vorher 1.6rem) */
+  line-height: 1;     /* keeps the label above from overlapping the value */
 }
 
 .unit {
